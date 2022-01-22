@@ -1,3 +1,4 @@
+from re import S
 import streamlit as st
 import seaborn as sns
 import pandas as pd
@@ -8,6 +9,8 @@ import numpy as np
 import random
 from tqdm.auto import tqdm  # for notebooks
 tqdm.pandas()
+import os
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/Users/sejaldua/Desktop/DESKTOP/for-fun/spotify-rewrapped/credentials.json"
 
 orig_solutions = pd.read_csv('mystery_words.csv', header=None)[0].to_list()
 orig_solutions = list(map(lambda x: x.upper(), orig_solutions))
@@ -17,6 +20,28 @@ orig_herrings = list(map(lambda x: x.upper(), orig_herrings))
 herrings = list(map(lambda x: list(x), orig_herrings))
 
 solution = 'PROXY'
+
+def detect_text(uploaded_file):
+    """Detects text in the file."""
+    from google.cloud import vision
+    import io
+    client = vision.ImageAnnotatorClient()
+
+    if uploaded_file is not None:
+        # To read file as bytes:
+        bytes_data = uploaded_file.getvalue()
+
+    image = vision.Image(content=bytes_data)
+
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    print(texts)
+
+    if response.error.message:
+        raise Exception(
+            '{}\nFor more info on error messages, check: '
+            'https://cloud.google.com/apis/design/errors'.format(
+                response.error.message))
 
 def process_guess(herring, solution):
     score = []
@@ -81,11 +106,16 @@ grey {
 </style>
 """ 
 
-num_guesses = st.sidebar.number_input('How many guesses did you need today?', min_value=1, max_value=6, value=6)
+num_guesses = int(st.sidebar.number_input('How many guesses did you need today?', min_value=1, max_value=6, value=6))
 solution = st.sidebar.text_input('What was the Wordle solution today?')
-# go = st.sidebar.button('Analyze Wordle Strategy!')
 submitted = False
 guesses = []
+
+# uploaded_file = st.file_uploader("Choose a file")
+# go = st.sidebar.button('Analyze Wordle Strategy!')
+# if go:
+#     detect_text(uploaded_file)
+
 
 with st.form("my_form"):
     for i in range(num_guesses):
@@ -93,7 +123,21 @@ with st.form("my_form"):
     # Every form must have a submit button.
     submitted = st.form_submit_button("ENTER")
     
+# col1, col2 = st.columns([2, 2])
 if submitted:
+    herring_pool = orig_herrings
+    solution_pool = orig_solutions
     for guess in guesses:
         score = process_guess(guess, solution)
         st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
+        if guess in orig_herrings:
+            prev_h_size, prev_s_size = len(herring_pool), len(solution_pool)
+            print("prev size", prev_h_size, prev_s_size)
+            herring_pool = filter_list(herring_pool, guess, score)
+            solution_pool = filter_list(solution_pool, guess, score)
+            with st.expander('See analysis'):
+                st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
+                st.write("eliminated " + str((prev_h_size - len(herring_pool))) + " / " + str(prev_h_size) + " guesses")
+        # else:
+            # with col2:
+            # st.write('woah cool guess')
