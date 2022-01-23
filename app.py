@@ -12,6 +12,7 @@ from tqdm.auto import tqdm  # for notebooks
 tqdm.pandas()
 import os
 from WordleBot import WordleBot
+import datetime
 
 
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/Users/sejaldua/Desktop/DESKTOP/for-fun/spotify-rewrapped/credentials.json"
@@ -69,23 +70,6 @@ def filter_list(pool, guess, score):
             pool = [word for word in pool if char not in word]
     return pool
 
-color_map = {2: 'green', 1: 'yellow', 0: 'red'}
-
-def simulate_round(guess, solution, herring_df, solution_pool):
-    score = process_guess(guess, solution)
-    # colored_guess = "".join([f"[{color_map[num]}]{char}[/{color_map[num]}]" for num, char in zip(score, guess)])
-    print(f"{guess} (guess) | {solution} (solution)")
-    if guess == solution:
-        return True
-    solution_pool = filter_list(solution_pool, guess, score)
-    herring_pool = filter_list(list(herring_df['herring']), guess, score)
-    if guess in herring_pool: herring_pool.remove(guess)
-    new_herring_df = herring_df.copy()
-    new_herring_df = new_herring_df[new_herring_df.herring.isin(herring_pool)]
-    # re-run simulation to get new heuristic scoring metrics
-    new_herring_df['greens'], new_herring_df['yellows'], new_herring_df['sum'] = zip(*new_herring_df['herring'].map(lambda x: simulate_guess_for_all_solutions(x, solution_pool)))
-    return solution_pool, new_herring_df
-
 color_map = {2: 'green', 1: 'yellow', 0: 'grey'}
 css = """
 <style type='text/css'>
@@ -126,7 +110,7 @@ def get_best_next_word(herring_pool):
     best_herring_df = pd.read_csv('./all_herrings_all_heuristics.csv')
     rec_df = best_herring_df.copy()
     rec_df = rec_df[rec_df.herring.isin(herring_pool)]
-    rec_df.sort_values(by=['avg_info_gain'], ascending=False)
+    rec_df.sort_values(by=['avg_tile_score'], ascending=False)
     return rec_df
 
 def guess_validation(guesses):
@@ -150,9 +134,17 @@ def score_validation(scores):
 def score_transformation(scores):
     return [list(map(int, score)) for score in scores]
 
-def get_solution():
-    bot = WordleBot()
-    bot.pick_todays_wordle()
+def get_solution(bot, puzzle, archive_num=None, user_wordle=None):
+    if puzzle == 'Current':
+        bot.pick_todays_wordle()
+    elif puzzle == 'From the Archives':
+        bot.pick_wordle(archive_num)
+    elif puzzle == 'Random':
+        bot.pick_random_wordle()
+    elif puzzle == 'Manual Entry':
+        if not bot.check_valid(user_wordle):
+            st.error('The Wordle you have entered is not valid')
+        bot.set_wordle(user_wordle)
     solution = bot.wordle
     return solution.upper()
 
@@ -165,13 +157,23 @@ score_system = {2: 'correct', 1: 'present', 0: 'absent'}
 submitted = False
 guesses = []
 scores = []
-solution = get_solution()
-print(solution)
-mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥸'])
+bot = WordleBot()
+mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥵'])
+
 if mode == 'Wordle Assist 🤝':
+    puzzle = st.sidebar.selectbox('Which puzzle do you want to solve?', ["Current", "From the Archives", "Random", "Manual Entry"])
+    archive_num, user_wordle = None, None
+    if puzzle == "From the Archives":
+        today_puzzle_num = (datetime.datetime.now()-datetime.datetime(2021,6,19)).days
+        archive_num = st.sidebar.number_input('Enter a puzzle number', min_value=0, max_value=today_puzzle_num, value=today_puzzle_num-1)
+    elif puzzle == "Manual Entry":
+        user_wordle = st.sidebar.text_input('Enter a 5-letter Wordle string')
+    solution = get_solution(bot, puzzle, archive_num=archive_num, user_wordle=user_wordle)
     num_guesses = int(st.sidebar.number_input('How many guesses have you used so far?', min_value=1, max_value=6, value=1))
 else:
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
+    solution = get_solution('Current')
+print(solution)
 
 # guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
 # score_cols = [col2, col3, col4, col5, col6]
