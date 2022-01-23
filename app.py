@@ -168,7 +168,7 @@ guesses = []
 scores = []
 mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥸'])
 if mode == 'Wordle Assist 🤝':
-    num_guesses = int(st.sidebar.number_input('How many guesses have you used?', min_value=1, max_value=6, value=6))
+    num_guesses = int(st.sidebar.number_input('How many guesses have you used so far?', min_value=1, max_value=6, value=6))
 else:
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
     solution = st.sidebar.text_input('What was the Wordle solution today?')
@@ -226,6 +226,7 @@ if submitted:
                         st.write(str(len(herring_pool)) + "  guesses remaining")
                         st.pyplot(get_letter_map_fig(herring_pool))
                         st.write(get_best_next_word(herring_pool))
+                        st.caption('Click on a column title / heuristic to sort in ascending or descending order and try out the top recommendation as your next answer!')
                 elif guess == "":
                     pass
                 else:
