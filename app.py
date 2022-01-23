@@ -108,7 +108,8 @@ def score_validation(scores):
 def score_transformation(scores):
     return [list(map(int, score)) for score in scores]
 
-def set_solution(bot, puzzle, archive_num=None, user_wordle=None):
+def get_bot_set_puzzle(puzzle, archive_num=None, user_wordle=None):
+    bot = WordleBot()
     if puzzle == 'Current':
         bot.pick_todays_wordle()
     elif puzzle == 'From the Archives':
@@ -123,17 +124,18 @@ def set_solution(bot, puzzle, archive_num=None, user_wordle=None):
         bot.set_wordle(user_wordle)
     solution = bot.wordle.upper()
     st.session_state['wordle_solution'] = solution
+    # st.session_state['bot'] = bot
 
 
 st.set_page_config(
     page_title = 'Wordle Wizard', 
     page_icon = '🥸'
 )
-score_system = {2: 'correct', 1: 'present', 0: 'absent'}
+score_system = {2: 'correct', 1: 'misplaced', 0: 'absent'}
+col1, col2 = st.columns([1, 1])
 submitted = False
 guesses = []
 scores = []
-bot = WordleBot()
 mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥵'])
 archive_num, user_wordle = None, None
 if mode == 'Wordle Assist 🤝':
@@ -148,11 +150,13 @@ else:
     puzzle = "Current"
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
 if st.sidebar.button('Go!'):
-    set_solution(bot, puzzle, archive_num=archive_num, user_wordle=user_wordle)
+    get_bot_set_puzzle(puzzle, archive_num=archive_num, user_wordle=user_wordle)
+    
 
 
 if 'wordle_solution' in st.session_state:
     print(st.session_state['wordle_solution'])
+    # bot = st.session_state['bot']
 
     with st.form("my_form"):
         for i in range(num_guesses):
@@ -161,6 +165,8 @@ if 'wordle_solution' in st.session_state:
         submitted = st.form_submit_button("ENTER")
         
     if submitted:
+        bot = WordleBot()
+        bot.set_wordle(st.session_state['wordle_solution'].lower())
         guess_pool = orig_guesses
         solution_pool = orig_solutions
         if not guess_validation(guesses):
@@ -170,6 +176,7 @@ if 'wordle_solution' in st.session_state:
             if guess_validation(guesses):
                 if mode == 'Wordle Assist 🤝':
                     if guess in orig_guesses:
+                        bot.check_letters(guess.lower())
                         score = process_guess(guess, st.session_state['wordle_solution'])
                         st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
                         prev_h_size = len(guess_pool)
@@ -183,7 +190,7 @@ if 'wordle_solution' in st.session_state:
                             st.balloons()
                         else:
                             with st.expander('Get strategic recommendations'):
-                                st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
+                                st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>{' '.join(letters)} <br/>") + " " for letters, num in zip([['# ' if char == "." else char.upper() for char in bot.correct_letters], ['# ' if char == "." else char.upper() for char in bot.misplaced_letters], [char.upper() + " " for char in set(bot.exclude_letters)]], score_system.keys())]) + css, unsafe_allow_html=True)
                                 st.progress(round(((prev_h_size - len(guess_pool))/prev_h_size)*100))
                                 st.write(str(len(guess_pool)) + "  guesses remaining")
                                 st.pyplot(get_letter_map_fig(guess_pool))
