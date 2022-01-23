@@ -168,7 +168,7 @@ guesses = []
 scores = []
 mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥸'])
 if mode == 'Wordle Assist 🤝':
-    num_guesses = int(st.sidebar.number_input('How many guesses have you used so far?', min_value=1, max_value=6, value=6))
+    num_guesses = int(st.sidebar.number_input('How many guesses have you used so far?', min_value=1, max_value=6, value=1))
 else:
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
     solution = st.sidebar.text_input('What was the Wordle solution today?')
