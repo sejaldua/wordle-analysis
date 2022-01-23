@@ -2,5 +2,3 @@ streamlit
 seaborn
 pandas
 matplotlib
-collections
-string
