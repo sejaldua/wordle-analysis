@@ -162,6 +162,7 @@ def score_transformation(scores):
 # if go:
 #     detect_text(uploaded_file)
 
+set.set_page_config(title='Wordle Wizard', favicon=':disguised')
 score_system = {2: 'correct', 1: 'present', 0: 'absent'}
 submitted = False
 guesses = []
