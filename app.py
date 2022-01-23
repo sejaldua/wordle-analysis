@@ -11,6 +11,9 @@ import random
 from tqdm.auto import tqdm  # for notebooks
 tqdm.pandas()
 import os
+from WordleBot import WordleBot
+
+
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/Users/sejaldua/Desktop/DESKTOP/for-fun/spotify-rewrapped/credentials.json"
 
 orig_solutions = pd.read_csv('mystery_words.csv', header=None)[0].to_list()
@@ -19,8 +22,6 @@ solutions = list(map(lambda x: list(x), orig_solutions))
 orig_herrings = pd.read_csv('guessable_words.csv', header=None)[0].to_list()
 orig_herrings = list(map(lambda x: x.upper(), orig_herrings))
 herrings = list(map(lambda x: list(x), orig_herrings))
-
-solution = 'PROXY'
 
 def detect_text(uploaded_file):
     """Detects text in the file."""
@@ -149,18 +150,12 @@ def score_validation(scores):
 def score_transformation(scores):
     return [list(map(int, score)) for score in scores]
 
-# set custom font
-# system_fonts = matplotlib.font_manager.findSystemFonts(fontpaths='/Users/sejaldua/Library/Fonts/', fontext='ttf')
-# font_list = matplotlib.font_manager.createFontList(system_fonts)
-# matplotlib.font_manager.fontManager.ttflist.extend(font_list)
-# # print([f.name for f in matplotlib.font_manager.fontManager.ttflist])
-# plt.rcParams['font.family'] = 'Circular Pro Book'
-# plt.rcParams['font.size'] = 15
+def get_solution():
+    bot = WordleBot()
+    bot.pick_todays_wordle()
+    solution = bot.wordle
+    return solution.upper()
 
-# uploaded_file = st.file_uploader("Choose a file")
-# go = st.sidebar.button('Analyze Wordle Strategy!')
-# if go:
-#     detect_text(uploaded_file)
 
 st.set_page_config(
     page_title = 'Wordle Wizard', 
@@ -170,31 +165,20 @@ score_system = {2: 'correct', 1: 'present', 0: 'absent'}
 submitted = False
 guesses = []
 scores = []
+solution = get_solution()
+print(solution)
 mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥸'])
 if mode == 'Wordle Assist 🤝':
     num_guesses = int(st.sidebar.number_input('How many guesses have you used so far?', min_value=1, max_value=6, value=1))
 else:
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
-    solution = st.sidebar.text_input('What was the Wordle solution today?')
 
-guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
-score_cols = [col2, col3, col4, col5, col6]
-ABCDE = 'ABCDE'
+# guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
+# score_cols = [col2, col3, col4, col5, col6]
+# ABCDE = 'ABCDE'
 with st.form("my_form"):
-    if mode == 'Wordle Assist 🤝':
-        with guess_col:
-            for i in range(num_guesses):
-                guesses.append(st.text_input('Guess ' + str(i+1)))
-        for i in range(num_guesses):
-            guess_score = []
-            for j in range(5):
-                with score_cols[j]:
-                    guess_score.append(st.text_input('Score ' + str(i+1)+ABCDE[j]))
-            scores.append(guess_score)
-                        
-    else:
-        for i in range(num_guesses):
-            guesses.append(st.text_input('Guess ' + str(i+1)))
+    for i in range(num_guesses):
+        guesses.append(st.text_input('Guess ' + str(i+1)))
     # Every form must have a submit button.
     submitted = st.form_submit_button("ENTER")
     
@@ -203,20 +187,12 @@ if submitted:
     solution_pool = orig_solutions
     if not guess_validation(guesses):
         st.error('Please make sure your guesses are exactly 5 characters long')    
-    if mode == 'Wordle Assist 🤝':
-        if not score_validation(scores):
-            st.error('Please make sure your scores are all integers (0, 1, or 2')
-        else:
-            scores = score_transformation(scores)
-    else:
-        if solution == "":
-            st.error("Please enter today's Wordle solution")
     for i, guess in enumerate(guesses):
         guess = guess.upper()
         if guess_validation(guesses):
             if mode == 'Wordle Assist 🤝':
                 if guess in orig_herrings:
-                    score = scores[i]
+                    score = process_guess(guess, solution)
                     st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
                     prev_h_size = len(herring_pool)
                     prev_s_size = len(solution_pool)

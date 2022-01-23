@@ -2,3 +2,4 @@ streamlit
 seaborn
 pandas
 matplotlib
+wordlesolver
