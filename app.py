@@ -6,21 +6,17 @@ import matplotlib
 from collections import Counter
 import collections
 import string
-import numpy as np
 import random
 from tqdm.auto import tqdm  # for notebooks
 tqdm.pandas()
-import os
 from WordleBot import WordleBot
 import datetime
 
 
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/Users/sejaldua/Desktop/DESKTOP/for-fun/spotify-rewrapped/credentials.json"
-
-orig_solutions = pd.read_csv('mystery_words.csv', header=None)[0].to_list()
+orig_solutions = pd.read_csv('./word_list_data/mystery_words.csv', header=None)[0].to_list()
 orig_solutions = list(map(lambda x: x.upper(), orig_solutions))
 solutions = list(map(lambda x: list(x), orig_solutions))
-orig_guesses = pd.read_csv('guessable_words.csv', header=None)[0].to_list()
+orig_guesses = pd.read_csv('./word_list_data/guessable_words.csv', header=None)[0].to_list()
 orig_guesses = list(map(lambda x: x.upper(), orig_guesses))
 guesses = list(map(lambda x: list(x), orig_guesses))
 
@@ -107,7 +103,7 @@ def get_letter_map_fig(pool):
     return fig
 
 def get_best_next_word(guess_pool):
-    best_guess_df = pd.read_csv('./heuristic_master.csv')
+    best_guess_df = pd.read_csv('./experimental_findings/heuristic_master.csv')
     rec_df = best_guess_df.copy()
     rec_df = rec_df[rec_df.guess.isin(guess_pool)]
     rec_df.sort_values(by=['guess_pool_shrink'], ascending=False)
