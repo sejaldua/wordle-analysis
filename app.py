@@ -166,8 +166,8 @@ score_system = {2: 'correct', 1: 'present', 0: 'absent'}
 submitted = False
 guesses = []
 scores = []
-mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist', 'Post-Game Analysis'])
-if mode == 'Wordle Assist':
+mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥸'])
+if mode == 'Wordle Assist 🤝':
     num_guesses = int(st.sidebar.number_input('How many guesses have you used?', min_value=1, max_value=6, value=6))
 else:
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
@@ -176,7 +176,7 @@ else:
 guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
 score_cols = [col2, col3, col4, col5, col6]
 with st.form("my_form"):
-    if mode == 'Wordle Assist':
+    if mode == 'Wordle Assist 🤝':
         with guess_col:
             for i in range(num_guesses):
                 guesses.append(st.text_input('Guess ' + str(i+1)))
@@ -198,7 +198,7 @@ if submitted:
     solution_pool = orig_solutions
     if not guess_validation(guesses):
         st.error('Please make sure your guesses are exactly 5 characters long')    
-    if mode == 'Wordle Assist':
+    if mode == 'Wordle Assist 🤝':
         if not score_validation(scores):
             st.error('Please make sure your scores are all integers (0, 1, or 2')
         else:
@@ -209,7 +209,7 @@ if submitted:
     for i, guess in enumerate(guesses):
         guess = guess.upper()
         if guess_validation(guesses):
-            if mode == 'Wordle Assist':
+            if mode == 'Wordle Assist 🤝':
                 if guess in orig_herrings:
                     score = scores[i]
                     st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
