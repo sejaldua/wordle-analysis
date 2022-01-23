@@ -150,12 +150,12 @@ def score_transformation(scores):
     return [list(map(int, score)) for score in scores]
 
 # set custom font
-system_fonts = matplotlib.font_manager.findSystemFonts(fontpaths='/Users/sejaldua/Library/Fonts/', fontext='ttf')
-font_list = matplotlib.font_manager.createFontList(system_fonts)
-matplotlib.font_manager.fontManager.ttflist.extend(font_list)
-# print([f.name for f in matplotlib.font_manager.fontManager.ttflist])
-plt.rcParams['font.family'] = 'Circular Pro Book'
-plt.rcParams['font.size'] = 15
+# system_fonts = matplotlib.font_manager.findSystemFonts(fontpaths='/Users/sejaldua/Library/Fonts/', fontext='ttf')
+# font_list = matplotlib.font_manager.createFontList(system_fonts)
+# matplotlib.font_manager.fontManager.ttflist.extend(font_list)
+# # print([f.name for f in matplotlib.font_manager.fontManager.ttflist])
+# plt.rcParams['font.family'] = 'Circular Pro Book'
+# plt.rcParams['font.size'] = 15
 
 # uploaded_file = st.file_uploader("Choose a file")
 # go = st.sidebar.button('Analyze Wordle Strategy!')
