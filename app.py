@@ -164,7 +164,7 @@ def score_transformation(scores):
 
 st.set_page_config(
     page_title = 'Wordle Wizard', 
-    page_icon = ':disguised_face:'
+    page_icon = '🥸'
 )
 score_system = {2: 'correct', 1: 'present', 0: 'absent'}
 submitted = False
