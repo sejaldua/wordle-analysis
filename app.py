@@ -1,4 +1,3 @@
-from re import S
 import streamlit as st
 import seaborn as sns
 import pandas as pd
@@ -12,7 +11,7 @@ import random
 from tqdm.auto import tqdm  # for notebooks
 tqdm.pandas()
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/Users/sejaldua/Desktop/DESKTOP/for-fun/spotify-rewrapped/credentials.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/Users/sejaldua/Desktop/DESKTOP/for-fun/spotify-rewrapped/credentials.json"
 
 orig_solutions = pd.read_csv('mystery_words.csv', header=None)[0].to_list()
 orig_solutions = list(map(lambda x: x.upper(), orig_solutions))
