@@ -20,9 +20,9 @@ import datetime
 orig_solutions = pd.read_csv('mystery_words.csv', header=None)[0].to_list()
 orig_solutions = list(map(lambda x: x.upper(), orig_solutions))
 solutions = list(map(lambda x: list(x), orig_solutions))
-orig_herrings = pd.read_csv('guessable_words.csv', header=None)[0].to_list()
-orig_herrings = list(map(lambda x: x.upper(), orig_herrings))
-herrings = list(map(lambda x: list(x), orig_herrings))
+orig_guesses = pd.read_csv('guessable_words.csv', header=None)[0].to_list()
+orig_guesses = list(map(lambda x: x.upper(), orig_guesses))
+guesses = list(map(lambda x: list(x), orig_guesses))
 
 def detect_text(uploaded_file):
     """Detects text in the file."""
@@ -46,11 +46,11 @@ def detect_text(uploaded_file):
             'https://cloud.google.com/apis/design/errors'.format(
                 response.error.message))
 
-def process_guess(herring, solution):
+def process_guess(guess, solution):
     score = []
-    for i, letter in enumerate(herring):
+    for i, letter in enumerate(guess):
         # right letter, right place
-        if herring[i] == solution[i]:
+        if guess[i] == solution[i]:
             score.append(2)
         # right letter, wrong place
         elif letter in solution:
@@ -106,11 +106,11 @@ def get_letter_map_fig(pool):
     sns.heatmap(num_letters, xticklabels=list(string.ascii_uppercase), yticklabels=list(range(1,6)), cmap=sns.color_palette("light:b", as_cmap=True))
     return fig
 
-def get_best_next_word(herring_pool):
-    best_herring_df = pd.read_csv('./all_herrings_all_heuristics.csv')
-    rec_df = best_herring_df.copy()
-    rec_df = rec_df[rec_df.herring.isin(herring_pool)]
-    rec_df.sort_values(by=['herring_pool_shrink'], ascending=False)
+def get_best_next_word(guess_pool):
+    best_guess_df = pd.read_csv('./heuristic_master.csv')
+    rec_df = best_guess_df.copy()
+    rec_df = rec_df[rec_df.guess.isin(guess_pool)]
+    rec_df.sort_values(by=['guess_pool_shrink'], ascending=False)
     return rec_df
 
 def guess_validation(guesses):
@@ -185,7 +185,7 @@ if 'wordle_solution' in st.session_state:
         submitted = st.form_submit_button("ENTER")
         
     if submitted:
-        herring_pool = orig_herrings
+        guess_pool = orig_guesses
         solution_pool = orig_solutions
         if not guess_validation(guesses):
             st.error('Please make sure your guesses are exactly 5 characters long')    
@@ -193,14 +193,14 @@ if 'wordle_solution' in st.session_state:
             guess = guess.upper()
             if guess_validation(guesses):
                 if mode == 'Wordle Assist 🤝':
-                    if guess in orig_herrings:
+                    if guess in orig_guesses:
                         score = process_guess(guess, st.session_state['wordle_solution'])
                         st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
-                        prev_h_size = len(herring_pool)
+                        prev_h_size = len(guess_pool)
                         prev_s_size = len(solution_pool)
-                        herring_pool = filter_list(herring_pool, guess, score)
-                        if guess in herring_pool:
-                            herring_pool.remove(guess)
+                        guess_pool = filter_list(guess_pool, guess, score)
+                        if guess in guess_pool:
+                            guess_pool.remove(guess)
                         solution_pool = filter_list(solution_pool, guess, score)
                         if guess == st.session_state['wordle_solution']:
                             st.write(get_html('green', f"You got it in {i+1} guesses!" + css), unsafe_allow_html=True)
@@ -208,10 +208,10 @@ if 'wordle_solution' in st.session_state:
                         else:
                             with st.expander('Get strategic recommendations'):
                                 st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
-                                st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
-                                st.write(str(len(herring_pool)) + "  guesses remaining")
-                                st.pyplot(get_letter_map_fig(herring_pool))
-                                st.write(get_best_next_word(herring_pool))
+                                st.progress(round(((prev_h_size - len(guess_pool))/prev_h_size)*100))
+                                st.write(str(len(guess_pool)) + "  guesses remaining")
+                                st.pyplot(get_letter_map_fig(guess_pool))
+                                st.write(get_best_next_word(guess_pool))
                                 st.caption('Click on a column title / heuristic to sort in ascending or descending order and try out the top recommendation as your next answer!')
                     elif guess == "":
                         pass
@@ -221,18 +221,18 @@ if 'wordle_solution' in st.session_state:
                 else:
                     score = process_guess(guess, st.session_state['wordle_solution'])
                     st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
-                    if guess in orig_herrings:
-                        prev_h_size = len(herring_pool)
+                    if guess in orig_guesses:
+                        prev_h_size = len(guess_pool)
                         prev_s_size = len(solution_pool)
-                        herring_pool = filter_list(herring_pool, guess, score)
+                        guess_pool = filter_list(guess_pool, guess, score)
                         solution_pool = filter_list(solution_pool, guess, score)
                         with st.expander('See analysis'):
                             st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
-                            st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
-                            st.write("eliminated " + str((prev_h_size - len(herring_pool))) + " / " + str(prev_h_size) + " guesses")
+                            st.progress(round(((prev_h_size - len(guess_pool))/prev_h_size)*100))
+                            st.write("eliminated " + str((prev_h_size - len(guess_pool))) + " / " + str(prev_h_size) + " guesses")
                             # st.write(str(len(solution_pool)) + " / " + str(prev_s_size) + " solutions remaining")
-                            st.pyplot(get_letter_map_fig(herring_pool))
-                            # st.write(get_best_next_word(herring_pool).head())
+                            st.pyplot(get_letter_map_fig(guess_pool))
+                            # st.write(get_best_next_word(guess_pool).head())
                     elif guess == "":
                         st.warning('Perhaps you used less guesses than you have specified')
                     else:
