@@ -68,8 +68,6 @@ def filter_list(pool, guess, score):
             pool = [word for word in pool if char in word]
         else:
             pool = [word for word in pool if char not in word]
-    if guess in pool:
-        pool.remove(guess)
     return pool
 
 color_map = {2: 'green', 1: 'yellow', 0: 'grey'}
@@ -162,7 +160,6 @@ scores = []
 bot = WordleBot()
 mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥵'])
 archive_num, user_wordle = None, None
-puzzle = "Current"
 if mode == 'Wordle Assist 🤝':
     puzzle = st.sidebar.selectbox('Which puzzle do you want to solve?', ["Current", "From the Archives", "Random", "Manual Entry"])
     if puzzle == "From the Archives":
@@ -172,6 +169,7 @@ if mode == 'Wordle Assist 🤝':
         user_wordle = st.sidebar.text_input('Enter a 5-letter Wordle string')
     num_guesses = int(st.sidebar.number_input('How many guesses have you used so far?', min_value=1, max_value=6, value=1))
 else:
+    puzzle = "Current"
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
 if st.sidebar.button('Go!'):
     set_solution(bot, puzzle, archive_num=archive_num, user_wordle=user_wordle)
@@ -201,6 +199,8 @@ if 'wordle_solution' in st.session_state:
                         prev_h_size = len(herring_pool)
                         prev_s_size = len(solution_pool)
                         herring_pool = filter_list(herring_pool, guess, score)
+                        if guess in herring_pool:
+                            herring_pool.remove(guess)
                         solution_pool = filter_list(solution_pool, guess, score)
                         if guess == st.session_state['wordle_solution']:
                             st.write(get_html('green', f"You got it in {i+1} guesses!" + css), unsafe_allow_html=True)
