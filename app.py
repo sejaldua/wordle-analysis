@@ -68,6 +68,8 @@ def filter_list(pool, guess, score):
             pool = [word for word in pool if char in word]
         else:
             pool = [word for word in pool if char not in word]
+    if guess in pool:
+        pool.remove(guess)
     return pool
 
 color_map = {2: 'green', 1: 'yellow', 0: 'grey'}
@@ -110,7 +112,7 @@ def get_best_next_word(herring_pool):
     best_herring_df = pd.read_csv('./all_herrings_all_heuristics.csv')
     rec_df = best_herring_df.copy()
     rec_df = rec_df[rec_df.herring.isin(herring_pool)]
-    rec_df.sort_values(by=['avg_tile_score'], ascending=False)
+    rec_df.sort_values(by=['herring_pool_shrink'], ascending=False)
     return rec_df
 
 def guess_validation(guesses):
@@ -178,9 +180,6 @@ if st.sidebar.button('Go!'):
 if 'wordle_solution' in st.session_state:
     print(st.session_state['wordle_solution'])
 
-    # guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
-    # score_cols = [col2, col3, col4, col5, col6]
-    # ABCDE = 'ABCDE'
     with st.form("my_form"):
         for i in range(num_guesses):
             guesses.append(st.text_input('Guess ' + str(i+1)))
@@ -203,13 +202,17 @@ if 'wordle_solution' in st.session_state:
                         prev_s_size = len(solution_pool)
                         herring_pool = filter_list(herring_pool, guess, score)
                         solution_pool = filter_list(solution_pool, guess, score)
-                        with st.expander('Get strategic recommendations'):
-                            st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
-                            st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
-                            st.write(str(len(herring_pool)) + "  guesses remaining")
-                            st.pyplot(get_letter_map_fig(herring_pool))
-                            st.write(get_best_next_word(herring_pool))
-                            st.caption('Click on a column title / heuristic to sort in ascending or descending order and try out the top recommendation as your next answer!')
+                        if guess == st.session_state['wordle_solution']:
+                            st.write(get_html('green', f"You got it in {i+1} guesses!" + css), unsafe_allow_html=True)
+                            st.balloons()
+                        else:
+                            with st.expander('Get strategic recommendations'):
+                                st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
+                                st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
+                                st.write(str(len(herring_pool)) + "  guesses remaining")
+                                st.pyplot(get_letter_map_fig(herring_pool))
+                                st.write(get_best_next_word(herring_pool))
+                                st.caption('Click on a column title / heuristic to sort in ascending or descending order and try out the top recommendation as your next answer!')
                     elif guess == "":
                         pass
                     else:
