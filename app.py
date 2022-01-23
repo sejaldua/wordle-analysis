@@ -134,7 +134,7 @@ def score_validation(scores):
 def score_transformation(scores):
     return [list(map(int, score)) for score in scores]
 
-def get_solution(bot, puzzle, archive_num=None, user_wordle=None):
+def set_solution(bot, puzzle, archive_num=None, user_wordle=None):
     if puzzle == 'Current':
         bot.pick_todays_wordle()
     elif puzzle == 'From the Archives':
@@ -145,8 +145,8 @@ def get_solution(bot, puzzle, archive_num=None, user_wordle=None):
         if not bot.check_valid(user_wordle):
             st.error('The Wordle you have entered is not valid')
         bot.set_wordle(user_wordle)
-    solution = bot.wordle
-    return solution.upper()
+    solution = bot.wordle.upper()
+    st.session_state['wordle_solution'] = solution
 
 
 st.set_page_config(
@@ -159,80 +159,79 @@ guesses = []
 scores = []
 bot = WordleBot()
 mode = st.sidebar.selectbox('Enter a game mode', ['Wordle Assist 🤝', 'Post-Game Analysis 🥵'])
-
+archive_num, user_wordle = None, None
+puzzle = "Current"
 if mode == 'Wordle Assist 🤝':
     puzzle = st.sidebar.selectbox('Which puzzle do you want to solve?', ["Current", "From the Archives", "Random", "Manual Entry"])
-    archive_num, user_wordle = None, None
     if puzzle == "From the Archives":
         today_puzzle_num = (datetime.datetime.now()-datetime.datetime(2021,6,19)).days
         archive_num = st.sidebar.number_input('Enter a puzzle number', min_value=0, max_value=today_puzzle_num, value=today_puzzle_num-1)
     elif puzzle == "Manual Entry":
         user_wordle = st.sidebar.text_input('Enter a 5-letter Wordle string')
-    solution = get_solution(bot, puzzle, archive_num=archive_num, user_wordle=user_wordle)
     num_guesses = int(st.sidebar.number_input('How many guesses have you used so far?', min_value=1, max_value=6, value=1))
 else:
     num_guesses = int(st.sidebar.number_input('How many guesses did you use?', min_value=1, max_value=6, value=6))
-    solution = get_solution('Current')
-print(solution)
+if st.sidebar.button('Go!'):
+    set_solution(bot, puzzle, archive_num=archive_num, user_wordle=user_wordle)
 
-# guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
-# score_cols = [col2, col3, col4, col5, col6]
-# ABCDE = 'ABCDE'
-with st.form("my_form"):
-    for i in range(num_guesses):
-        guesses.append(st.text_input('Guess ' + str(i+1)))
-    # Every form must have a submit button.
-    submitted = st.form_submit_button("ENTER")
-    
-if submitted:
-    herring_pool = orig_herrings
-    solution_pool = orig_solutions
-    if not guess_validation(guesses):
-        st.error('Please make sure your guesses are exactly 5 characters long')    
-    for i, guess in enumerate(guesses):
-        guess = guess.upper()
-        if guess_validation(guesses):
-            if mode == 'Wordle Assist 🤝':
-                if guess in orig_herrings:
-                    score = process_guess(guess, solution)
+
+if 'wordle_solution' in st.session_state:
+    print(st.session_state['wordle_solution'])
+
+    # guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
+    # score_cols = [col2, col3, col4, col5, col6]
+    # ABCDE = 'ABCDE'
+    with st.form("my_form"):
+        for i in range(num_guesses):
+            guesses.append(st.text_input('Guess ' + str(i+1)))
+        # Every form must have a submit button.
+        submitted = st.form_submit_button("ENTER")
+        
+    if submitted:
+        herring_pool = orig_herrings
+        solution_pool = orig_solutions
+        if not guess_validation(guesses):
+            st.error('Please make sure your guesses are exactly 5 characters long')    
+        for i, guess in enumerate(guesses):
+            guess = guess.upper()
+            if guess_validation(guesses):
+                if mode == 'Wordle Assist 🤝':
+                    if guess in orig_herrings:
+                        score = process_guess(guess, st.session_state['wordle_solution'])
+                        st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
+                        prev_h_size = len(herring_pool)
+                        prev_s_size = len(solution_pool)
+                        herring_pool = filter_list(herring_pool, guess, score)
+                        solution_pool = filter_list(solution_pool, guess, score)
+                        with st.expander('Get strategic recommendations'):
+                            st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
+                            st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
+                            st.write(str(len(herring_pool)) + "  guesses remaining")
+                            st.pyplot(get_letter_map_fig(herring_pool))
+                            st.write(get_best_next_word(herring_pool))
+                            st.caption('Click on a column title / heuristic to sort in ascending or descending order and try out the top recommendation as your next answer!')
+                    elif guess == "":
+                        pass
+                    else:
+                        print(guess)
+                        st.warning('Sorry... your guess is not in our archive of possible guesses')
+                else:
+                    score = process_guess(guess, st.session_state['wordle_solution'])
                     st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
-                    prev_h_size = len(herring_pool)
-                    prev_s_size = len(solution_pool)
-                    # print("prev size", prev_h_size, prev_s_size)
-                    herring_pool = filter_list(herring_pool, guess, score)
-                    print(len(herring_pool))
-                    solution_pool = filter_list(solution_pool, guess, score)
-                    with st.expander('Get strategic recommendations'):
-                        st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
-                        st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
-                        st.write(str(len(herring_pool)) + "  guesses remaining")
-                        st.pyplot(get_letter_map_fig(herring_pool))
-                        st.write(get_best_next_word(herring_pool))
-                        st.caption('Click on a column title / heuristic to sort in ascending or descending order and try out the top recommendation as your next answer!')
-                elif guess == "":
-                    pass
-                else:
-                    print(guess)
-                    st.warning('Sorry... your guess is not in our archive of possible guesses')
-            else:
-                score = process_guess(guess, solution)
-                st.write("".join([get_html(color_map[num], char) for num, char in zip(score, guess)]) + css, unsafe_allow_html=True)
-                if guess in orig_herrings:
-                    prev_h_size = len(herring_pool)
-                    prev_s_size = len(solution_pool)
-                    # print("prev size", prev_h_size, prev_s_size)
-                    herring_pool = filter_list(herring_pool, guess, score)
-                    print(len(herring_pool))
-                    solution_pool = filter_list(solution_pool, guess, score)
-                    with st.expander('See analysis'):
-                        st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
-                        st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
-                        st.write("eliminated " + str((prev_h_size - len(herring_pool))) + " / " + str(prev_h_size) + " guesses")
-                        # st.write(str(len(solution_pool)) + " / " + str(prev_s_size) + " solutions remaining")
-                        st.pyplot(get_letter_map_fig(herring_pool))
-                        # st.write(get_best_next_word(herring_pool).head())
-                elif guess == "":
-                    st.warning('Perhaps you used less guesses than you have specified')
-                else:
-                    print(guess)
-                    st.warning('Sorry... your guess is not in our archive of possible guesses')
+                    if guess in orig_herrings:
+                        prev_h_size = len(herring_pool)
+                        prev_s_size = len(solution_pool)
+                        herring_pool = filter_list(herring_pool, guess, score)
+                        solution_pool = filter_list(solution_pool, guess, score)
+                        with st.expander('See analysis'):
+                            st.write("".join([get_html(color_map[num], f"{score.count(num)} {score_system[num]}<br/>") + " " for num in score_system.keys()]) + css, unsafe_allow_html=True)
+                            st.progress(round(((prev_h_size - len(herring_pool))/prev_h_size)*100))
+                            st.write("eliminated " + str((prev_h_size - len(herring_pool))) + " / " + str(prev_h_size) + " guesses")
+                            # st.write(str(len(solution_pool)) + " / " + str(prev_s_size) + " solutions remaining")
+                            st.pyplot(get_letter_map_fig(herring_pool))
+                            # st.write(get_best_next_word(herring_pool).head())
+                    elif guess == "":
+                        st.warning('Perhaps you used less guesses than you have specified')
+                    else:
+                        print(guess)
+                        st.warning('Sorry... your guess is not in our archive of possible guesses')
