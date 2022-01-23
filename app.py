@@ -175,6 +175,7 @@ else:
 
 guess_col, col2, col3, col4, col5, col6 = st.columns([3, 1, 1, 1, 1, 1])
 score_cols = [col2, col3, col4, col5, col6]
+ABCDE = 'ABCDE'
 with st.form("my_form"):
     if mode == 'Wordle Assist 🤝':
         with guess_col:
@@ -184,7 +185,7 @@ with st.form("my_form"):
             guess_score = []
             for j in range(5):
                 with score_cols[j]:
-                    guess_score.append(st.text_input('Score ' + str(i+1)+str(j+1)))
+                    guess_score.append(st.text_input('Score ' + str(i+1)+ABCDE[j]))
             scores.append(guess_score)
                         
     else:
