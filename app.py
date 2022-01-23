@@ -142,8 +142,10 @@ def set_solution(bot, puzzle, archive_num=None, user_wordle=None):
     elif puzzle == 'Random':
         bot.pick_random_wordle()
     elif puzzle == 'Manual Entry':
-        if not bot.check_valid(user_wordle):
-            st.error('The Wordle you have entered is not valid')
+        try:
+            bot.check_valid(user_wordle)
+        except ValueError:
+            st.error('The Wordle string you have entered is not valid')
         bot.set_wordle(user_wordle)
     solution = bot.wordle.upper()
     st.session_state['wordle_solution'] = solution
