@@ -20,28 +20,6 @@ orig_guesses = pd.read_csv('./word_list_data/guessable_words.csv', header=None)[
 orig_guesses = list(map(lambda x: x.upper(), orig_guesses))
 guesses = list(map(lambda x: list(x), orig_guesses))
 
-def detect_text(uploaded_file):
-    """Detects text in the file."""
-    from google.cloud import vision
-    import io
-    client = vision.ImageAnnotatorClient()
-
-    if uploaded_file is not None:
-        # To read file as bytes:
-        bytes_data = uploaded_file.getvalue()
-
-    image = vision.Image(content=bytes_data)
-
-    response = client.text_detection(image=image)
-    texts = response.text_annotations
-    print(texts)
-
-    if response.error.message:
-        raise Exception(
-            '{}\nFor more info on error messages, check: '
-            'https://cloud.google.com/apis/design/errors'.format(
-                response.error.message))
-
 def process_guess(guess, solution):
     score = []
     for i, letter in enumerate(guess):
