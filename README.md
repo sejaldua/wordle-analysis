@@ -1,6 +1,6 @@
 # wordle-analysis
 
-Analyzing the most strategic words to guess on Wordle, based on letter frequency distributions
+Evaluating different heuristics to determine the most effective solving strategy and building an AI-powered assistant tool to help you win. [Read the article >>>](https://towardsdatascience.com/a-deep-dive-into-wordle-the-new-pandemic-puzzle-craze-9732d97bf723)
 
 ## The Data
 
