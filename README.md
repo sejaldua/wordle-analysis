@@ -5,7 +5,10 @@ Analyzing the most strategic words to guess on Wordle, based on letter frequency
 ## The Data
 
 `12972` [guessable words](./word_list_data/guessable_words.csv)  
-`2315` [mystery words](./word_list_data/mystery_words.csv)
+`2315` [mystery words](./word_list_data/mystery_words.csv)\*
+
+_\* = These words comprise a word bank that is hard-coded into the  
+Wordle source code and used to randomly pick the daily puzzle each day_
 
 ## Exploratory Analysis
 
