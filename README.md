@@ -28,10 +28,10 @@ As it turns out, `E`, `A`, `R`, `O`, `T`, `L`, `I`, `S` are the most frequent le
 
 Suppose today's Wordle solution is `CRIMP`.
 
-Guess 1: `RAISE` => :large_yellow_square: :black_large_square: :large_green_square: :black_large_square: :black_large_square:  
-Guess 2: `MOUNT` => :large_yellow_square: :black_large_square: :black_large_square: :black_large_square: :black_large_square:  
-Guess 3: `GRIME` => :black_large_square: :large_green_square: :large_green_square: :large_green_square: :black_large_square:  
-Guess 4: `CRIMP` => :large_green_square: :large_green_square: :large_green_square: :large_green_square: :large_green_square:
+Guess 1: `RAISE` => 🟨⬛🟩⬛⬛  
+Guess 2: `MOUNT` => 🟨⬛⬛⬛⬛  
+Guess 3: `GRIME` => ⬛🟩🟩🟩⬛  
+Guess 4: `CRIMP` => 🟩🟩🟩🟩🟩
 
 ## Simulation Results
 
