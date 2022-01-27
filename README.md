@@ -1,6 +1,9 @@
 # wordle-analysis
 
-Evaluating different heuristics to determine the most effective solving strategy and building an AI-powered assistant tool to help you win. [Read the article >>>](https://towardsdatascience.com/a-deep-dive-into-wordle-the-new-pandemic-puzzle-craze-9732d97bf723)
+Evaluating different heuristics to determine the most effective solving strategy and building an AI-powered assistant tool to help you win.
+
+[Read the article >>>](https://towardsdatascience.com/a-deep-dive-into-wordle-the-new-pandemic-puzzle-craze-9732d97bf723)  
+[Play with the AI-based strategic helper tool >>>](https://share.streamlit.io/sejaldua/wordle-analysis/main/app.py)
 
 ## The Data
 
