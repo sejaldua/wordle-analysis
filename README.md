@@ -33,6 +33,16 @@ Guess 2: `MOUNT` => 🟨⬛⬛⬛⬛ (M is present in the word, but not in the r
 Guess 3: `GRIME` => ⬛🟩🟩🟩⬛ (R, I, and M are all correct and locked in)  
 Guess 4: `CRIMP` => 🟩🟩🟩🟩🟩 (🎉 yay, you solved the Wordle! 🎉)
 
+If you take each guessable word and use it to try to guess each of the 2,315 mystery words, we can get a sense of how much valuable information we obtain using the scoring system above. For each guess, let's count up the number of greens we get, the number of yellows, blacks. Then, using a weighted average to maximize greens and yellows, we can sort our list of guessable words to find the words that yield us, on average, the highest heuristic score. A list of the 5 top words using this approach is provided below! Try starting your Wordle with any one of these words next time and see how you do!
+
+| Guess | Average Correct 🟩 | Average Present 🟨 | Average Absent ⬛ | Weighted Average Tile Score 🟩🟨 |
+| ----- | ------------------ | ------------------ | ----------------- | -------------------------------- |
+| SOARE | 0.660043           | 1.107991           | 3.231965          | 2.428078                         |
+| STARE | 0.572786           | 1.192657           | 3.234557          | 2.338229                         |
+| ROATE | 0.541685           | 1.247516           | 3.210799          | 2.330886                         |
+| RAILE | 0.544708           | 1.225054           | 3.230238          | 2.314471                         |
+| AROSE | 0.538661           | 1.229374           | 3.231965          | 2.306695                         |
+
 ## Simulation Results
 
 | Approach                   | Best Initial Guess |
