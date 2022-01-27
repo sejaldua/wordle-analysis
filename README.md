@@ -16,7 +16,7 @@ Wordle source code and used to randomly pick the daily puzzle each day_
 
 In the words of Pat Sajak, "R, S, T, L, N, E". These are the most frequently appearing letters in the English language and are, as such, used in the Bonus Round of the game Wheel of Fortune. But I wanted to start this project by verifying if they are, in fact, the most frequent letters when we limit our scope to only _5-letter_ English words.
 
-<img src="./figures/top_eight_letters_by_freq.png" width="75%">
+<img src="./figures/top_eight_letters_by_freq.png" width="50%">
 
 As it turns out, `E`, `A`, `R`, `O`, `T`, `L`, `I`, `S` are the most frequent letters that appear in 5-letter words. Now, quick, think of a 5-letter word using these letters!
 
