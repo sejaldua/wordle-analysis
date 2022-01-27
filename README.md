@@ -20,3 +20,13 @@ As it turns out, `E`, `A`, `R`, `O`, `T`, `L`, `I`, `S` are the most frequent le
 #### Heatmap to analyze letter frequency by positions
 
 <img src="./figures/solution_letter_heatmap.png" width="75%">
+
+## Simple Scoring Heuristics
+
+## Simulation Results
+
+| Approach                   | Best Initial Guess |
+| -------------------------- | ------------------ |
+| Max-size Prioritization    | `RAISE`            |
+| Max-entropy Prioritization | `SOARE`            |
+| Max-splits Prioritization  | `TRACE`            |
