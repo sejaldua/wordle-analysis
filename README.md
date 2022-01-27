@@ -26,12 +26,12 @@ As it turns out, `E`, `A`, `R`, `O`, `T`, `L`, `I`, `S` are the most frequent le
 
 ## Simple Scoring Heuristics
 
-Suppose today's Wordle solution is `CRIMP`.
+Suppose today's Wordle solution is `CRIMP`. Let's walk through some example guesses and unpack how to make sense of the resulting colored tiles.
 
-Guess 1: `RAISE` => 🟨⬛🟩⬛⬛ (R is present in the word, but not in the right place)  
-Guess 2: `MOUNT` => 🟨⬛⬛⬛⬛ (M is present in the word, but not in the right place)  
-Guess 3: `GRIME` => ⬛🟩🟩🟩⬛ (R, I, and M are all correct and locked in)  
-Guess 4: `CRIMP` => 🟩🟩🟩🟩🟩 (🎉 yay, you solved the Wordle! 🎉)
+Guess 1: `RAISE` => 🟨⬛🟩⬛⬛ => R is present in the word, but not in the right place  
+Guess 2: `MOUNT` => 🟨⬛⬛⬛⬛ => M is present in the word, but not in the right place  
+Guess 3: `GRIME` => ⬛🟩🟩🟩⬛ => R, I, and M are all correct and locked in  
+Guess 4: `CRIMP` => 🟩🟩🟩🟩🟩 => 🎉 yay, you solved the Wordle! 🎉
 
 If you take each guessable word and use it to try to guess each of the 2,315 mystery words, we can get a sense of how much valuable information we obtain using the scoring system above. For each guess, let's count up the number of greens we get, the number of yellows, blacks. Then, using a weighted average to maximize greens and yellows, we can sort our list of guessable words to find the words that yield us, on average, the highest heuristic score. A list of the 5 top words using this approach is provided below! Try starting your Wordle with any one of these words next time and see how you do!
 
