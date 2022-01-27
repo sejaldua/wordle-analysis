@@ -28,10 +28,10 @@ As it turns out, `E`, `A`, `R`, `O`, `T`, `L`, `I`, `S` are the most frequent le
 
 Suppose today's Wordle solution is `CRIMP`.
 
-Guess 1: `RAISE` => 🟨⬛🟩⬛⬛  
-Guess 2: `MOUNT` => 🟨⬛⬛⬛⬛  
-Guess 3: `GRIME` => ⬛🟩🟩🟩⬛  
-Guess 4: `CRIMP` => 🟩🟩🟩🟩🟩
+Guess 1: `RAISE` => 🟨⬛🟩⬛⬛ (R is present in the word, but not in the right place)  
+Guess 2: `MOUNT` => 🟨⬛⬛⬛⬛ (M is present in the word, but not in the right place)  
+Guess 3: `GRIME` => ⬛🟩🟩🟩⬛ (R, I, and M are all correct and locked in)  
+Guess 4: `CRIMP` => 🟩🟩🟩🟩🟩 (🎉 yay, you solved the Wordle! 🎉)
 
 ## Simulation Results
 
