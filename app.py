@@ -11,6 +11,7 @@ from tqdm.auto import tqdm  # for notebooks
 tqdm.pandas()
 from WordleBot import WordleBot
 import datetime
+import json
 
 
 orig_solutions = pd.read_csv('./word_list_data/mystery_words.csv', header=None)[0].to_list()
@@ -19,6 +20,18 @@ solutions = list(map(lambda x: list(x), orig_solutions))
 orig_guesses = pd.read_csv('./word_list_data/guessable_words.csv', header=None)[0].to_list()
 orig_guesses = list(map(lambda x: x.upper(), orig_guesses))
 guesses = list(map(lambda x: list(x), orig_guesses))
+
+def todays_answer():
+    with open("wordle_nyt_answers.txt", "r") as f:
+        answer_words = json.load(f)
+    # the game uses local system time to determine the answer
+    delta = datetime.datetime.now() - datetime.datetime(2021, 6, 19)
+    return answer_words[delta.days].upper()
+
+def get_archive_answer(num):
+    with open("wordle_nyt_answers.txt", "r") as f:
+        answer_words = json.load(f)
+    return answer_words[num].upper()
 
 def process_guess(guess, solution):
     score = []
@@ -111,18 +124,18 @@ def score_transformation(scores):
 def get_bot_set_puzzle(puzzle, archive_num=None, user_wordle=None):
     bot = WordleBot()
     if puzzle == 'Current':
-        bot.pick_todays_wordle()
+        solution = todays_answer()
     elif puzzle == 'From the Archives':
-        bot.pick_wordle(archive_num)
+        solution = get_archive_answer(archive_num)
     elif puzzle == 'Random':
         bot.pick_random_wordle()
+        solution = bot.wordle.upper()
     elif puzzle == 'Manual Entry':
         try:
             bot.check_valid(user_wordle)
         except ValueError:
             st.error('The Wordle string you have entered is not valid')
-        bot.set_wordle(user_wordle)
-    solution = bot.wordle.upper()
+        solution = user_wordle.upper()
     st.session_state['wordle_solution'] = solution
     # st.session_state['bot'] = bot
 
@@ -155,7 +168,7 @@ if st.sidebar.button('Go!'):
 
 
 if 'wordle_solution' in st.session_state:
-    print(st.session_state['wordle_solution'])
+    # print(st.session_state['wordle_solution'])
     # bot = st.session_state['bot']
 
     with st.form("my_form"):
@@ -199,7 +212,7 @@ if 'wordle_solution' in st.session_state:
                     elif guess == "":
                         pass
                     else:
-                        print(guess)
+                        # print(guess)
                         st.warning('Sorry... your guess is not in our archive of possible guesses')
                 else:
                     score = process_guess(guess, st.session_state['wordle_solution'])
@@ -219,5 +232,5 @@ if 'wordle_solution' in st.session_state:
                     elif guess == "":
                         st.warning('Perhaps you used less guesses than you have specified')
                     else:
-                        print(guess)
+                        # print(guess)
                         st.warning('Sorry... your guess is not in our archive of possible guesses')
